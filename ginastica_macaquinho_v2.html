@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Ginástica do Macaquinho - Completo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: radial-gradient(circle, #dcedc8 0%, #aed581 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            text-align: center;
+        }
+
+        #game-container {
+            background-color: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            padding: 30px;
+            max-width: 750px;
+            width: 92%;
+            position: relative;
+            border: 6px solid #8bc34a;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            color: #33691e;
+            font-size: 2.3em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        #progress-bar {
+            width: 80%;
+            height: 18px;
+            background-color: #eee;
+            border-radius: 20px;
+            margin: 0 auto 20px auto;
+            overflow: hidden;
+            border: 3px solid #c5e1a5;
+        }
+
+        #progress {
+            height: 100%;
+            background: linear-gradient(to right, #8bc34a, #558b2f);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Área do Desenho Animado */
+        .character-stage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            min-height: 220px;
+        }
+
+        .sprite {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            transition: transform 0.3s ease;
+        }
+
+        .bounce {
+            animation: playfulBounce 2.5s infinite ease-in-out;
+        }
+
+        @keyframes playfulBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+
+        /* Animação alternada entre língua fina e grossa */
+        .alternate-tongue {
+            animation: altTongue 2s infinite alternate;
+        }
+        @keyframes altTongue {
+            0% { d: path("M 48,66 Q 50,95 52,66 Z"); } /* Fina */
+            100% { d: path("M 38,66 Q 50,85 62,66 Z"); } /* Grossa */
+        }
+
+        .story-text {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin: 10px 0;
+            font-weight: 800;
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+
+        .instruction-text {
+            font-size: 1.1em;
+            color: #e65100;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background-color: #fff3e0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            border-left: 5px solid #ff9800;
+        }
+
+        /* Cronómetro CSS */
+        #timer-container {
+            display: none; /* Escondido por defeito */
+            background: #fffde7;
+            border: 3px dashed #fbc02d;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 10px auto 25px auto;
+            width: 80%;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #time-display {
+            font-size: 2.5em;
+            font-family: monospace;
+            font-weight: 900;
+            color: #d84315;
+            margin: 0;
+            text-shadow: 1px 1px #ffcc80;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .timer-btn {
+            padding: 8px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .timer-toggle { background-color: #4caf50; color: white; }
+        .timer-reset { background-color: #f44336; color: white; }
+
+        button.main-btn {
+            background: linear-gradient(135deg, #ffca28 0%, #ff8f00 100%);
+            border: none;
+            border-bottom: 5px solid #e65100;
+            border-radius: 50px;
+            padding: 15px 45px;
+            font-size: 1.5em;
+            font-weight: 900;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255, 143, 0, 0.4);
+            transition: transform 0.1s;
+            font-family: 'Nunito', sans-serif;
+            text-transform: uppercase;
+        }
+
+        button.main-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 143, 0, 0.5);
+        }
+
+        button.main-btn:active {
+            transform: translateY(3px);
+            border-bottom: 1px solid #e65100;
+        }
+
+        .celebration-element {
+            position: absolute;
+            font-size: 35px;
+            pointer-events: none;
+            animation: popAndFly 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes popAndFly {
+            0% { opacity: 0; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+            15% { opacity: 1; }
+            100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.4) rotate(var(--r)); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>O Macaquinho Brincalhão 🐒</h1>
+        <div id="progress-bar"><div id="progress"></div></div>
+        
+        <div class="character-stage">
+            <div id="monkey" class="sprite bounce">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <circle cx="15" cy="45" r="12" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
+                    <circle cx="15" cy="45" r="7" fill="#d7ccc8"/>
+                    <circle cx="85" cy="45" r="12" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
+                    <circle cx="85" cy="45" r="7" fill="#d7ccc8"/>
+                    <circle cx="50" cy="50" r="35" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
+                    <path d="M 50,35 C 30,15 15,45 25,65 C 35,85 65,85 75,65 C 85,45 70,15 50,35 Z" fill="#d7ccc8"/>
+                    
+                    <g id="monkey-eyes">
+                        <ellipse cx="38" cy="45" rx="5" ry="7" fill="#fff" stroke="#4e342e" stroke-width="1"/>
+                        <circle cx="39" cy="46" r="3" fill="#000"/>
+                        <circle cx="40" cy="45" r="1" fill="#fff"/>
+                        <ellipse cx="62" cy="45" rx="5" ry="7" fill="#fff" stroke="#4e342e" stroke-width="1"/>
+                        <circle cx="61" cy="46" r="3" fill="#000"/>
+                        <circle cx="60" cy="45" r="1" fill="#fff"/>
+                    </g>
+                    <g id="monkey-eyes-closed" style="display: none;">
+                        <path d="M 33,45 Q 38,40 43,45" fill="none" stroke="#4e342e" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M 57,45 Q 62,40 67,45" fill="none" stroke="#4e342e" stroke-width="2" stroke-linecap="round"/>
+                    </g>
+                    <ellipse cx="50" cy="55" rx="4" ry="3" fill="#4e342e"/>
+                    
+                    <g id="monkey-mouth-group">
+                        <path id="monkey-mouth" d="M 40,65 Q 50,65 60,65" fill="none" stroke="#4e342e" stroke-width="2" stroke-linecap="round"/>
+                        <path id="monkey-tongue" d="M 45,65 Q 50,70 55,65" fill="#f06292" stroke="#c2185b" stroke-width="1.5" style="display:none;"/>
+                    </g>
+                    
+                    <circle id="cheek-left" cx="28" cy="55" r="4" fill="#ff8a80" opacity="0.6"/>
+                    <circle id="cheek-right" cx="72" cy="55" r="4" fill="#ff8a80" opacity="0.6"/>
+                </svg>
+            </div>
+        </div>
+
+        <div id="slide-content">
+            <p id="story" class="story-text">O nosso amiguinho Macaquinho Kiko está pronto para brincar. Queres fazer ginástica com ele?</p>
+            <p id="instruction" class="instruction-text">(Prepara-te para imitar o macaquinho!)</p>
+            
+            <!-- Cronómetro escondido por defeito -->
+            <div id="timer-container">
+                <div id="time-display">00:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn timer-toggle" id="toggle-btn" onclick="toggleTimer()">▶️ Andar</button>
+                    <button class="timer-btn timer-reset" onclick="resetTimer()">🔄 Zero</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="main-btn" id="action-btn" onclick="nextSlide()">Começar! 🍌</button>
+    </div>
+
+    <script>
+        // Variáveis do Cronómetro
+        let timerInterval;
+        let milliseconds = 0;
+        let timerRunning = false;
+
+        function updateDisplay() {
+            let seconds = Math.floor(milliseconds / 100);
+            let ms = milliseconds % 100;
+            document.getElementById('time-display').innerText = 
+                (seconds < 10 ? "0" + seconds : seconds) + ":" + 
+                (ms < 10 ? "0" + ms : ms);
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('toggle-btn');
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                btn.innerText = "▶️ Andar";
+                btn.style.backgroundColor = "#4caf50";
+            } else {
+                timerRunning = true;
+                btn.innerText = "⏸️ Parar";
+                btn.style.backgroundColor = "#ff9800";
+                timerInterval = setInterval(() => {
+                    milliseconds++;
+                    updateDisplay();
+                }, 10); // atualiza a cada 10ms
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            milliseconds = 0;
+            updateDisplay();
+            const btn = document.getElementById('toggle-btn');
+            btn.innerText = "▶️ Andar";
+            btn.style.backgroundColor = "#4caf50";
+        }
+
+        // Histórias e Praxias atualizadas
+        const storySlides = [
+            {
+                story: "O Kiko quer comer uma banana gigante! Ele abre a boca o máximo que consegue!",
+                instruction: "Terapeuta: Incentive a criança a abrir muito bem a boca. 😲",
+                btnText: "Boca Aberta!",
+                mouth: "M 35,65 Q 50,85 65,65 Z", 
+                mouthFill: "#4e342e",
+                tongue: "M 42,72 Q 50,78 58,72", 
+                tongueDisplay: "block",
+                hasTimer: false
+            },
+            {
+                story: "Agora o Kiko deita a língua toda para fora para apanhar os pingos de chuva!",
+                instruction: "Terapeuta: Pedir para esticar a língua toda para fora e para a frente. 👅",
+                btnText: "Língua de Fora!",
+                mouth: "M 40,66 Q 50,70 60,66", 
+                mouthFill: "none",
+                tongue: "M 43,66 C 43,90 57,90 57,66 Z", 
+                tongueDisplay: "block",
+                hasTimer: false
+            },
+            {
+                story: "O Kiko transforma a sua língua numa agulha fininha bem esticada! Durante quanto tempo consegues segurar?",
+                instruction: "Terapeuta: Esticar a língua fininha e usar o cronómetro para registar o tempo recorde! ⏱️",
+                btnText: "Bati o Recorde!",
+                mouth: "M 42,66 Q 50,68 58,66", 
+                mouthFill: "none",
+                tongue: "M 48,66 Q 50,95 52,66 Z", // Língua muito fininha
+                tongueDisplay: "block",
+                hasTimer: true
+            },
+            {
+                story: "Olha que giro! A língua do Kiko fica fininha e depois grossa. Parece magia!",
+                instruction: "Terapeuta: Alternar entre língua fininha (pontiaguda) e língua grossa (espalmada). ↔️",
+                btnText: "Fiz Magia!",
+                mouth: "M 40,66 Q 50,70 60,66", 
+                mouthFill: "none",
+                tongue: "M 38,66 Q 50,85 62,66 Z", // Será animada via CSS ou vista como grossa
+                tongueDisplay: "block",
+                addAltClass: true, // Adiciona a animação de alternância
+                hasTimer: false
+            },
+            {
+                story: "O Kiko quer mandar beijinhos repuxados para todos os amigos que estão a ver!",
+                instruction: "Terapeuta: Fazer biquinho e dar estalos de beijinhos várias vezes seguidas. 💋",
+                btnText: "Mandei Beijinhos!",
+                mouth: "M 46,65 C 46,60 54,60 54,65 C 54,70 46,70 46,65 Z", // Boca em biquinho (círculo pequeno)
+                mouthFill: "#c2185b",
+                tongue: "", 
+                tongueDisplay: "none",
+                hasTimer: false
+            },
+            {
+                story: "Como uma ventosa, o Kiko cola a língua ao teto da casa (céu da boca)! Vamos ver quanto tempo a ventosa aguenta colada?",
+                instruction: "Terapeuta: Sugar e colar a língua no palato (céu da boca). Usar o cronómetro para contar o tempo! ⏱️",
+                btnText: "Ventosa Descolou!",
+                mouth: "M 40,65 Q 50,80 60,65 Z", // Boca aberta mas a língua está lá em cima
+                mouthFill: "#4e342e",
+                tongue: "M 45,65 Q 50,55 55,65 Z", // Língua dobrada para cima/escondida no palato
+                tongueDisplay: "block",
+                hasTimer: true
+            },
+            {
+                story: "Para festejar, o Kiko faz o barulho de um cavalinho a passear: Clack, Clack, Clack!",
+                instruction: "Terapeuta: Estalar a língua no céu da boca, imitando o trote de um cavalo. 🐎",
+                btnText: "Fiz o Cavalinho!",
+                mouth: "M 35,65 Q 50,75 65,65 Z", // Boca meio aberta preparada para estalar
+                mouthFill: "#4e342e",
+                tongue: "M 45,70 Q 50,65 55,70", // Língua a descer do estalo
+                tongueDisplay: "block",
+                hasTimer: false
+            },
+            {
+                story: "O Kiko ficou cansado de tanta ginástica. Fechou a boquinha e foi dormir a sesta...",
+                instruction: "Terapeuta: Fechar suavemente os lábios e respirar pelo nariz. Relaxar. 😴",
+                btnText: "Boa Sesta!",
+                mouth: "M 42,68 Q 50,68 58,68", 
+                mouthFill: "none",
+                tongue: "", 
+                tongueDisplay: "none",
+                eyesDisplay: "none", // Olhos fechados
+                eyesClosedDisplay: "block",
+                hasTimer: false
+            }
+        ];
+
+        let currentSlide = -1;
+
+        function nextSlide() {
+            if(currentSlide >= 0) animateCelebration();
+
+            currentSlide++;
+
+            const storyEl = document.getElementById("story");
+            const instEl = document.getElementById("instruction");
+            const btnEl = document.getElementById("action-btn");
+            const progressEl = document.getElementById("progress");
+            const timerContainer = document.getElementById("timer-container");
+            
+            const mouth = document.getElementById("monkey-mouth");
+            const tongue = document.getElementById("monkey-tongue");
+            const eyes = document.getElementById("monkey-eyes");
+            const eyesClosed = document.getElementById("monkey-eyes-closed");
+
+            // Parar timer se estiver a andar ao mudar de slide
+            resetTimer();
+
+            if (currentSlide < storySlides.length) {
+                const slide = storySlides[currentSlide];
+                
+                storyEl.style.opacity = 0;
+                instEl.style.opacity = 0;
+                
+                setTimeout(() => {
+                    storyEl.innerText = slide.story;
+                    instEl.innerText = slide.instruction;
+                    btnEl.innerText = slide.btnText;
+                    storyEl.style.opacity = 1;
+                    instEl.style.opacity = 1;
+                }, 200);
+
+                if(mouth) {
+                    mouth.setAttribute("d", slide.mouth);
+                    mouth.setAttribute("fill", slide.mouthFill);
+                }
+                
+                if(tongue) {
+                    // Remover classe de alternância primeiro
+                    tongue.classList.remove("alternate-tongue");
+                    if (slide.tongue) tongue.setAttribute("d", slide.tongue);
+                    tongue.style.display = slide.tongueDisplay;
+                    
+                    // Adicionar animação de alternância se o slide pedir
+                    if(slide.addAltClass) {
+                        tongue.classList.add("alternate-tongue");
+                    }
+                }
+
+                // Lidar com olhos abertos/fechados (por defeito aberto se não for o de dormir)
+                if(eyes && eyesClosed) {
+                    eyes.style.display = slide.eyesDisplay || "block";
+                    eyesClosed.style.display = slide.eyesClosedDisplay || "none";
+                }
+
+                // Mostrar cronómetro se for necessário
+                if(slide.hasTimer) {
+                    timerContainer.style.display = "flex";
+                } else {
+                    timerContainer.style.display = "none";
+                }
+
+                const progressPercentage = ((currentSlide + 1) / storySlides.length) * 100;
+                progressEl.style.width = progressPercentage + "%";
+                
+            } else {
+                storyEl.innerText = "Parabéns! O Macaquinho adorou brincar contigo! És espetacular! 🎉";
+                instEl.innerText = "Exercícios concluídos com sucesso!";
+                btnEl.innerText = "Jogar Outra Vez! 🔄";
+                progressEl.style.width = "100%";
+                timerContainer.style.display = "none";
+                
+                mouth.setAttribute("d", "M 40,65 Q 50,65 60,65");
+                mouth.setAttribute("fill", "none");
+                tongue.style.display = "none";
+                tongue.classList.remove("alternate-tongue");
+                eyes.style.display = "block";
+                eyesClosed.style.display = "none";
+
+                for(let i=0; i<15; i++) {
+                    setTimeout(animateCelebration, i*120);
+                }
+                
+                currentSlide = -1;
+            }
+        }
+
+        function animateCelebration() {
+            const container = document.getElementById("game-container");
+            const btn = document.getElementById("action-btn").getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            const emojis = ['🍌', '🐒', '🎉', '⭐', '🎈', '👏'];
+            
+            for(let i = 0; i < 5; i++) {
+                const element = document.createElement('div');
+                element.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                element.classList.add('celebration-element');
+                
+                const xOrigin = btn.left - containerRect.left + (btn.width / 2);
+                const yOrigin = btn.top - containerRect.top;
+                
+                element.style.left = xOrigin + 'px';
+                element.style.top = yOrigin + 'px';
+                
+                const angle = (Math.random() * Math.PI) + Math.PI;
+                const distance = 80 + Math.random() * 120;
+                const destX = Math.cos(angle) * distance;
+                const destY = Math.sin(angle) * distance;
+                const randRotation = (Math.random() * 360) - 180;
+                
+                element.style.setProperty('--x', `${destX}px`);
+                element.style.setProperty('--y', `${destY}px`);
+                element.style.setProperty('--r', `${randRotation}deg`);
+                
+                container.appendChild(element);
+                
+                setTimeout(() => element.remove(), 1200);
+            }
+        }
+    </script>
+</body>
+</html>
